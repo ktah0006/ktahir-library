@@ -1,0 +1,27 @@
+/* Tag selectors */
+h1 {
+  text-align: center;
+  margin-top: 20px;
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+  /* 4px (horizontal offset)
+    4px (vertical offset)
+    8px (blur radius): The larger the value makes the shadow more blurred. */
+}
+
+/* Class selectors */
+.form {
+  text-align: center;
+  margin-top: 50px;
+}
+
+/* ID selectors */
+/* :focus pseudo-class is used to apply styles to an element when it receives focus. 
+Focus typically occurs when a user clicks on an element or navigates to it using the keyboard 
+# are ID selectors */
+#username:focus,
+#password:focus,
+#isAustralian:focus,
+#reason:focus {
+  border-color: #ff6347; /* More obvious border color change (Tomato) */
+  background-color: #ffebe8; /* Light background color change */
+}
