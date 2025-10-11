@@ -98,8 +98,7 @@
         </form>
 
         <div class="row mt-5" v-if="submittedCards.length">
-          <div class="d-flex flex-wrap justify-content-start">
-            <h2 class="mb-3 text-center">Submitted Users</h2>
+          <div class="d-flex flex-wrap justify-content-center">
             <DataTable
               :value="submittedCards"
               paginator
@@ -118,23 +117,6 @@
               <Column field="gender" header="Gender" />
               <Column field="reason" header="Reason" />
             </DataTable>
-            <div
-              v-for="(card, index) in submittedCards"
-              :key="index"
-              class="card m-2"
-              style="width: 18rem"
-            >
-              <!-- <div class="card-header">User Information</div>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item">Username: {{ card.username }}</li>
-                <li class="list-group-item">Password: {{ card.password }}</li>
-                <li class="list-group-item">
-                  Australian Resident: {{ card.isAustralian ? 'Yes' : 'No' }}
-                </li>
-                <li class="list-group-item">Gender: {{ card.gender }}</li>
-                <li class="list-group-item">Reason: {{ card.reason }}</li>
-              </ul> -->
-            </div>
           </div>
         </div>
       </div>
