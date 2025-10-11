@@ -6,9 +6,10 @@
         <!-- this way the submitForm functino is called when submit is pressed
          this prevents reload upon clicking submission -->
         <form @submit.prevent="submitForm">
+          <!-- ROW 1 -->
           <div class="row mb-3">
-            <!-- <div class="col-md-6"> -->
             <!-- Always take up only 6 columns even for the smallest breakpoint -->
+            <!-- USERNAME -->
             <div class="col-6">
               <label for="username" class="form-label">Username:</label>
               <!-- @blur is Vue.js event directive, It listens for the blur event, 
@@ -27,37 +28,8 @@
                The v-if directive checks if there is an error message stored in errors.username -->
               <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
             </div>
-            <!-- <div class="col-md-6"> -->
-            <!-- Always take up only 6 columns even for the smallest breakpoint -->
-            <div class="col-6">
-              <label for="password" class="form-label">Password:</label>
-              <input
-                type="password"
-                class="form-control"
-                id="password"
-                @blur="() => validatePassword(true)"
-                @input="() => validatePassword(false)"
-                v-model="formData.password"
-              />
-              <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
-            </div>
-          </div>
 
-          <div class="row mb-3">
-            <!-- <div class="col-md-6"> -->
-            <div class="col-6 d-flex align-items-center">
-              <div class="form-check">
-                <input
-                  type="checkbox"
-                  class="form-check-input"
-                  id="isAustralian"
-                  v-model="formData.isAustralian"
-                />
-                <label class="form-check-label ms-2" for="isAustralian">Australian Resident?</label>
-              </div>
-            </div>
-
-            <!-- <div class="col-md-6"> -->
+            <!-- GENDER -->
             <div class="col-6">
               <label for="gender" class="form-label">Gender</label>
               <select
@@ -76,7 +48,57 @@
             </div>
           </div>
 
-          <div class="mb-3">
+          <!-- ROW 2 -->
+          <div class="row mb-3">
+            <!-- Always take up only 6 columns even for the smallest breakpoint -->
+            <!-- PASSWORD -->
+            <div class="col-6">
+              <label for="password" class="form-label">Password:</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                @blur="() => validatePassword(true)"
+                @input="() => validatePassword(false)"
+                v-model="formData.password"
+              />
+              <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
+            </div>
+
+            <!-- CONFIRM PASSWORD -->
+            <div class="col-6">
+              <label for="confirm-password" class="form-label">Confirm password</label>
+              <input
+                type="password"
+                class="form-control"
+                id="confirm-password"
+                v-model="formData.confirmPassword"
+                @blur="() => validateConfirmPassword(true)"
+              />
+              <div v-if="errors.confirmPassword" class="text-danger">
+                {{ errors.confirmPassword }}
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 3 -->
+          <div class="row mb-3">
+            <!-- <div class="col-md-6"> -->
+            <div class="col-6 d-flex align-items-center">
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="isAustralian"
+                  v-model="formData.isAustralian"
+                />
+                <label class="form-check-label ms-2" for="isAustralian">Australian Resident?</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 4 -->
+          <div class="row mb-3">
             <div class="col-12">
               <label for="reason" class="form-label">Reason For Joining:</label>
               <textarea
@@ -88,6 +110,15 @@
                 v-model="formData.reason"
               ></textarea>
               <div v-if="errors.reason" class="text-danger">{{ errors.reason }}</div>
+              <div v-if="isFriendDetected" class="text-success mt-1">Great to have a friend</div>
+            </div>
+          </div>
+
+          <!-- ROW 5 -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <label for="reason" class="form-label">Suburb</label>
+              <input type="text" class="form-control" id="suburb" v-model="formData.suburb" />
             </div>
           </div>
 
@@ -116,6 +147,7 @@
               </Column>
               <Column field="gender" header="Gender" />
               <Column field="reason" header="Reason" />
+              <Column field="suburb" header="Suburb" />
             </DataTable>
           </div>
         </div>
@@ -132,9 +164,11 @@ import Column from 'primevue/column'
 const formData = ref({
   username: '',
   password: '',
+  confirmPassword: '',
   isAustralian: false,
   reason: '',
   gender: '',
+  suburb: '',
 })
 
 const submittedCards = ref([])
@@ -164,9 +198,11 @@ const clearForm = () => {
   formData.value = {
     username: '',
     password: '',
+    confirmPassword: '',
     isAustralian: false,
     reason: '',
     gender: '',
+    suburb: '',
   }
 }
 
@@ -211,6 +247,7 @@ const validatePassword = (blur) => {
   }
 }
 
+const isFriendDetected = ref(false)
 const validateReason = (blur) => {
   const reason = formData.value.reason
   if (reason.length < 10) {
@@ -220,6 +257,12 @@ const validateReason = (blur) => {
   } else {
     errors.value.reason = null
   }
+
+  if (reason.toLowerCase().includes('friend')) {
+    isFriendDetected.value = true
+  } else {
+    isFriendDetected.value = false
+  }
 }
 
 const validateGender = (blur) => {
@@ -228,6 +271,18 @@ const validateGender = (blur) => {
     if (blur) errors.value.gender = 'Please select an option'
   } else {
     errors.value.gender = null
+  }
+}
+
+/**
+ * Confirm password validation function that checks if the password and confirm password fields match.
+ * @param blur: boolean - If true, the function will display an error message if the passwords do not match.
+ */
+const validateConfirmPassword = (blur) => {
+  if (formData.value.password !== formData.value.confirmPassword) {
+    if (blur) errors.value.confirmPassword = 'Passwords do not match.'
+  } else {
+    errors.value.confirmPassword = null
   }
 }
 </script>
