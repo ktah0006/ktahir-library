@@ -11,13 +11,21 @@
             <!-- Always take up only 6 columns even for the smallest breakpoint -->
             <div class="col-6">
               <label for="username" class="form-label">Username:</label>
+              <!-- @blur is Vue.js event directive, It listens for the blur event, 
+               which occurs when the user leaves (unfocuses) the input field 
+               @input is Vue.js event directive, It listens for the input event, 
+               which occurs whenever the value of the input field changes (e.g., when the user types) -->
               <input
                 type="text"
                 class="form-control"
                 id="username"
-                required
+                @blur="() => validateName(true)"
+                @input="() => validateName(false)"
                 v-model="formData.username"
               />
+              <!-- conditionally displays an error message. 
+               The v-if directive checks if there is an error message stored in errors.username -->
+              <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
             </div>
             <!-- <div class="col-md-6"> -->
             <!-- Always take up only 6 columns even for the smallest breakpoint -->
@@ -27,10 +35,11 @@
                 type="password"
                 class="form-control"
                 id="password"
-                minlength="4"
-                maxlength="10"
+                @blur="() => validatePassword(true)"
+                @input="() => validatePassword(false)"
                 v-model="formData.password"
               />
+              <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
             </div>
           </div>
 
@@ -51,12 +60,19 @@
             <!-- <div class="col-md-6"> -->
             <div class="col-6">
               <label for="gender" class="form-label">Gender</label>
-              <select class="form-select" id="gender" required v-model="formData.gender">
+              <select
+                class="form-select"
+                id="gender"
+                v-model="formData.gender"
+                @blur="() => validateGender(true)"
+                @change="() => validateGender(false)"
+              >
                 <option value="" disabled>Select Gender</option>
                 <option value="female">Female</option>
                 <option value="male">Male</option>
                 <option value="other">Other</option>
               </select>
+              <div v-if="errors.gender" class="text-danger">{{ errors.gender }}</div>
             </div>
           </div>
 
@@ -67,9 +83,11 @@
                 class="form-control"
                 id="reason"
                 rows="3"
-                required
+                @blur="() => validateReason(true)"
+                @input="() => validateReason(false)"
                 v-model="formData.reason"
               ></textarea>
+              <div v-if="errors.reason" class="text-danger">{{ errors.reason }}</div>
             </div>
           </div>
 
@@ -81,13 +99,32 @@
 
         <div class="row mt-5" v-if="submittedCards.length">
           <div class="d-flex flex-wrap justify-content-start">
+            <h2 class="mb-3 text-center">Submitted Users</h2>
+            <DataTable
+              :value="submittedCards"
+              paginator
+              :rows="5"
+              tableStyle="min-width: 50rem"
+              stripedRows
+              responsiveLayout="scroll"
+            >
+              <Column field="username" header="Username" />
+              <Column field="password" header="Password" />
+              <Column header="Australian Resident">
+                <template #body="slotProps">{{
+                  slotProps.data.isAustralian ? 'Yes' : 'No'
+                }}</template>
+              </Column>
+              <Column field="gender" header="Gender" />
+              <Column field="reason" header="Reason" />
+            </DataTable>
             <div
               v-for="(card, index) in submittedCards"
               :key="index"
               class="card m-2"
               style="width: 18rem"
             >
-              <div class="card-header">User Information</div>
+              <!-- <div class="card-header">User Information</div>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">Username: {{ card.username }}</li>
                 <li class="list-group-item">Password: {{ card.password }}</li>
@@ -96,7 +133,7 @@
                 </li>
                 <li class="list-group-item">Gender: {{ card.gender }}</li>
                 <li class="list-group-item">Reason: {{ card.reason }}</li>
-              </ul>
+              </ul> -->
             </div>
           </div>
         </div>
@@ -107,6 +144,8 @@
 
 <script setup>
 import { ref } from 'vue'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 
 const formData = ref({
   username: '',
@@ -118,13 +157,26 @@ const formData = ref({
 
 const submittedCards = ref([])
 
-const submitForm = () =>
-  // Each time you click the Submit button, one “snapshot” of the form gets pushed into this array
-  submittedCards.value.push({
-    // uses the spread operator (...) to make a copy of the current form data.
-    // This way, even if you later change formData (e.g., typing again or clearing inputs), your submitted record doesn’t change — it’s safely stored.
-    ...formData.value,
-  })
+const submitForm = () => {
+  validateName(true)
+  validatePassword(true)
+  validateReason(true)
+  validateGender(true)
+  if (
+    !errors.value.username &&
+    !errors.value.password &&
+    !errors.value.reason &&
+    !errors.value.gender
+  ) {
+    // Each time you click the Submit button, one “snapshot” of the form gets pushed into this array
+    submittedCards.value.push({
+      // uses the spread operator (...) to make a copy of the current form data.
+      // This way, even if you later change formData (e.g., typing again or clearing inputs), your submitted record doesn’t change — it’s safely stored.
+      ...formData.value,
+    })
+    clearForm()
+  }
+}
 
 const clearForm = () => {
   formData.value = {
@@ -133,6 +185,67 @@ const clearForm = () => {
     isAustralian: false,
     reason: '',
     gender: '',
+  }
+}
+
+const errors = ref({
+  username: null,
+  password: null,
+  resident: null,
+  gender: null,
+  reason: null,
+})
+
+const validateName = (blur) => {
+  if (formData.value.username.length < 3) {
+    // blur parameter (boolean) indicates whether validation was triggered by the user leaving (blurring) the input field
+    if (blur) errors.value.username = 'Name must be at least 3 characters'
+  } else {
+    errors.value.username = null
+  }
+}
+
+const validatePassword = (blur) => {
+  const password = formData.value.password
+  const minLength = 8
+  // check using regular expressions
+  const hasUppercase = /[A-Z]/.test(password)
+  const hasLowercase = /[a-z]/.test(password)
+  const hasNumber = /\d/.test(password)
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+
+  if (password.length < minLength) {
+    if (blur) errors.value.password = `Password must at least be ${minLength} characters long.`
+  } else if (!hasUppercase) {
+    if (blur) errors.value.password = 'Password must contain at least one uppercase character'
+  } else if (!hasLowercase) {
+    if (blur) errors.value.password = 'Password must contain at least one lowercase character'
+  } else if (!hasNumber) {
+    if (blur) errors.value.password = 'Password must contain at least one number'
+  } else if (!hasSpecialChar) {
+    if (blur) errors.value.password = 'Password must contain at least one special character'
+  } else {
+    errors.value.password = null
+  }
+}
+
+const validateReason = (blur) => {
+  const reason = formData.value.reason
+  if (reason.length < 10) {
+    if (blur) errors.value.reason = 'Reason must at least be 10 characters long'
+  } else if (reason.length > 500) {
+    if (blur) errors.value.reason = 'Reason must not exceed 500 characters'
+  } else {
+    errors.value.reason = null
+  }
+}
+
+const validateGender = (blur) => {
+  const gender = formData.value.gender
+  if (!gender) {
+    if (blur) errors.value.gender = 'Please select an option'
+  } else {
+    errors.value.gender = null
   }
 }
 </script>
