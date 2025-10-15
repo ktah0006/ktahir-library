@@ -12,7 +12,7 @@ import BHeader from './components/BHeader.vue'
     <header>
       <BHeader />
     </header>
-    <main>
+    <main class="main-box">
       <router-view></router-view>
     </main>
   </div>
