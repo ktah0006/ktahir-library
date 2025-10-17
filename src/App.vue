@@ -1,10 +1,6 @@
 <script setup>
-// import HelloWorld from './components/HelloWorld.vue'
-// import TheWelcome from './components/TheWelcome.vue'
 import { RouterView } from 'vue-router'
 import BHeader from './components/BHeader.vue'
-// import JSONLab from './components/JSON.vue'
-// import LoginForm from './views/HomeView.vue'
 </script>
 
 <template>

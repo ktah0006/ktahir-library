@@ -3,6 +3,8 @@ import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import LoginView from '@/views/LoginView.vue'
 import store from '../store/store'
+import FirebaseSigninView from '@/views/FirebaseSigninView.vue'
+import FirebaseRegisterView from '@/views/FirebaseRegisterView.vue'
 
 const routes = [
   {
@@ -20,6 +22,16 @@ const routes = [
     name: 'Login',
     component: LoginView,
   },
+  {
+    path: '/Firelogin',
+    name: 'Firelogin',
+    component: FirebaseSigninView,
+  },
+  {
+    path: '/Fireregister',
+    name: 'Fireregister',
+    component: FirebaseRegisterView,
+  },
 ]
 
 const router = createRouter({
@@ -27,17 +39,12 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to, from, next) => {
-  // if (!store.state.isAuthenticated && to.name !== 'Login') {
-  //   return { name: 'Login' }
-  // } else {
-  //   next()
-  // }
-  if (!store.state.isAuthenticated && to.name !== 'Login') {
-    next({ name: 'Login' })
-  } else {
-    next()
-  }
-})
+// router.beforeEach((to, from, next) => {
+//   if (!store.state.isAuthenticated && to.name !== 'Login') {
+//     next({ name: 'Login' })
+//   } else {
+//     next()
+//   }
+// })
 
 export default router
