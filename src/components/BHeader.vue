@@ -20,18 +20,17 @@
         <!-- <li class="nav-item" v-else>
           <button class="btn btn-danger ms-3" @click="handleLogout">Logout</button>
         </li> -->
-
-        <li class="nav-item">
+        <li class="nav-item" v-if="!user">
           <router-link to="/Firelogin" class="nav-link" active-class="active"
             >Firebase Login</router-link
           >
         </li>
-        <li class="nav-item">
+        <li class="nav-item" v-if="!user">
           <router-link to="/Fireregister" class="nav-link" active-class="active"
             >Firebase Register</router-link
           >
         </li>
-        <li class="nav-item">
+        <li class="nav-item" v-else>
           <button class="btn btn-danger ms-3" @click="firebaseLogout">Firebase Logout</button>
         </li>
       </ul>
@@ -40,8 +39,9 @@
 </template>
 
 <script setup>
-import { getAuth, signOut } from 'firebase/auth'
+import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth'
 import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
 // import { mapState, mapActions } from 'vuex'
 
 // export default {
@@ -58,8 +58,17 @@ import { useRouter } from 'vue-router'
 // }
 
 const router = useRouter()
+const auth = getAuth()
+const user = ref(null)
+
+onMounted(() => {
+  onAuthStateChanged(auth, (currentUser) => {
+    user.value = currentUser
+    console.log('onAuthStateChanged: ', currentUser ? 'Logged in' : 'Logged out')
+  })
+})
+
 const firebaseLogout = async () => {
-  const auth = getAuth()
   try {
     await signOut(auth)
     console.log('signed out of firebase')
