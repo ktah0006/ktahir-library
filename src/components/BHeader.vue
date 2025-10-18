@@ -9,11 +9,14 @@
             >Home (Week 5)</router-link
           >
         </li>
-        <!-- <li class="nav-item" v-if="isAuthenticated">
+        <li class="nav-item" v-if="!user">
           <router-link to="/about" class="nav-link" active-class="active">About</router-link>
         </li>
+        <li class="nav-item">
+          <router-link to="/addbook" class="nav-link" active-class="active">Add Book</router-link>
+        </li>
 
-        <li class="nav-item" v-if="!isAuthenticated">
+        <!-- <li class="nav-item" v-if="!isAuthenticated">
           <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
         </li> -->
         <!-- have to be imediately after the v-if -->
